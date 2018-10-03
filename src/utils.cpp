@@ -4,6 +4,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace Rcpp;
+using namespace arma;
 
 
 // [[Rcpp::export]]
@@ -56,6 +57,49 @@ arma::mat cpp_loggausspdf(arma::mat X, arma::vec mu, arma::mat Sigma){
     } catch( const std::runtime_error exception){
         y.fill(-arma::datum::inf);
     }
-
     return(y);
 }
+
+
+// [[Rcpp::export]]
+List test_List(List cstr){
+    CharacterVector Sigma = cstr["Sigma"];
+    arma::mat cw = cstr["cw"];
+    cw.zeros();
+
+    List cstr_ = List::create(Named("cw") = cw,
+                              Named("Sigma") = "i*");
+    return(cstr_);
+}
+
+// [[Rcpp::export]]
+arma::mat test_mat_assign(arma::mat x){
+    int r = x.n_rows;
+    int temp = 2;
+    x.cols(1, 1+temp) = zeros<mat>(r, temp+1);
+    return(x);
+}
+
+
+// [[Rcpp::export]]
+Rcpp::List cpp_Maximization(arma::mat t, arma::mat y, arma::mat r,
+                            arma::mat muw, arma::mat Sw, List cstr){
+    int K = r.n_cols;
+    int N = r.n_rows;
+    int D = y.n_rows;
+    int Lt = t.n_rows;
+    int Lw;
+    if(muw.is_empty())
+        Lw = 0;
+    else
+        Lw = muw.n_rows;
+    int L = Lt + Lw;
+
+    arma::mat c(L, K, arma::fill::zeros);
+    arma::field<arma::mat> Gamma(K);
+    if(Lw > 0){
+        arma::mat cw = cstr["cw"];
+        c.rows(Lt+1, L) = cw;
+    }
+}
+

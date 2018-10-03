@@ -17,3 +17,11 @@ cpp_loggausspdf <- function(X, mu, Sigma) {
     .Call('_smogllim_cpp_loggausspdf', PACKAGE = 'smogllim', X, mu, Sigma)
 }
 
+test_List <- function(cstr) {
+    .Call('_smogllim_test_List', PACKAGE = 'smogllim', cstr)
+}
+
+test_mat_assign <- function(x) {
+    .Call('_smogllim_test_mat_assign', PACKAGE = 'smogllim', x)
+}
+

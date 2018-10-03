@@ -53,12 +53,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_List
+List test_List(List cstr);
+RcppExport SEXP _smogllim_test_List(SEXP cstrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type cstr(cstrSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_List(cstr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_mat_assign
+arma::mat test_mat_assign(arma::mat x);
+RcppExport SEXP _smogllim_test_mat_assign(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_mat_assign(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_smogllim_timesTwo", (DL_FUNC) &_smogllim_timesTwo, 1},
     {"_smogllim_mat_transpose", (DL_FUNC) &_smogllim_mat_transpose, 1},
     {"_smogllim_cpp_logsumexp", (DL_FUNC) &_smogllim_cpp_logsumexp, 2},
     {"_smogllim_cpp_loggausspdf", (DL_FUNC) &_smogllim_cpp_loggausspdf, 3},
+    {"_smogllim_test_List", (DL_FUNC) &_smogllim_test_List, 1},
+    {"_smogllim_test_mat_assign", (DL_FUNC) &_smogllim_test_mat_assign, 1},
     {NULL, NULL, 0}
 };
 
