@@ -1,6 +1,11 @@
+library(abind)
+library(MASS)
 smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=NULL,
                     minSize=0, dropTh=Inf, orig_th=NULL) {
-
+    Lt = nrow(tapp)
+    L = Lt + Lw
+    D = nrow(yapp)
+    N = ncol(yapp)
     #initialize cstr
     if(! "ct" %in% names(cstr)) cstr$ct = NULL
     if(! "cw" %in% names(cstr)) cstr$cw = NULL
@@ -9,15 +14,30 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
     if(! "pi" %in% names(cstr)) cstr$pi = NULL
     if(! "A" %in% names(cstr)) cstr$A = NULL
     if(! "b" %in% names(cstr)) cstr$b = NULL
-    if(! "Sigma" %in% names(cstr)) cstr$Sigma = "i"
+    if(! "Sigma" %in% names(cstr)) cstr$Sigma = "*"
 
     if(is.null(in_r)){
-        temp_cluster = Mclust(t(rbind(train_y, train_t)), K)
-        gllim_r = array(0, c(train_num, K))
-        for(i in 1:train_num){
-            gllim_r[i, temp_cluster$classification[i]] = 1
+        gllim_result = gllim(tapp, yapp, K, Lw=Lw, cstr=cstr)
+        gllim_r = round(gllim_result$r)
+
+    cluster_assign = apply(gllim_r, 1, which.max)
+    temp_r = array(0, c(N, 2))
+    for(c in sort(unique(cluster_assign))){
+        index = which(cluster_assign==c)
+        if(length(index)==1) {
+            temp_r[index, ] = c(c, 1)
+        } else {
+            temp_t = tapp[, index, drop=FALSE]
+            temp_cluster = Mclust(t(temp_t), M, verbose=FALSE)
+            temp_assign = temp_cluster$classification
+            temp_r[index, 1] = c
+            temp_r[index, 2] = temp_assign
         }
-        gllim_result = gllim(train_t, train_y, K, in_r=list(R=gllim_r), Lw=Lw, cstr=cstr)
+    }
+    r = array(0, c(N, K, M))
+    for(i in 1:N){
+        r[i, temp_r[i, 1], temp_r[i, 2]] = 1
+    }
     } else {
         r = in_r
     }
@@ -25,10 +45,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
         stop("Observations must be in columns and variables in rows")
     }
 
-    Lt = nrow(tapp)
-    L = Lt + Lw
-    D = nrow(yapp)
-    N = ncol(yapp)
+
 
     if(Lw==0) {
         Sw = NULL
