@@ -80,7 +80,7 @@ arma::mat test_mat_assign(arma::mat x){
     return(x);
 }
 
-
+/*
 // [[Rcpp::export]]
 Rcpp::List cpp_Maximization(arma::mat t, arma::mat y, arma::mat r,
                             arma::mat muw, arma::mat Sw, List cstr){
@@ -102,4 +102,4 @@ Rcpp::List cpp_Maximization(arma::mat t, arma::mat y, arma::mat r,
         c.rows(Lt+1, L) = cw;
     }
 }
-
+*/
