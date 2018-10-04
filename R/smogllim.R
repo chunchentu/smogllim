@@ -1,5 +1,5 @@
 smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=NULL,
-                    minSize=0, dropTh=Inf) {
+                    minSize=0, dropTh=Inf, orig_th=NULL) {
 
     #initialize cstr
     if(! "ct" %in% names(cstr)) cstr$ct = NULL

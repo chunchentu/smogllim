@@ -65,7 +65,7 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
         } else {# Correspond to null variance in cluster k or L=0:
             Akw = 0 # DxL
         }
-        newy = Akw %*% muw[, , k]
+        newy = yapp - Akw %*% muw[, , k]
     } else {
         newy = yapp
     } # end of if(Lw>0) Ln:35
