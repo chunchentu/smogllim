@@ -125,20 +125,29 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
 
     # enhance training
 
-    LL = array(-Inf, maxiter)
-    iter = 0
+    # LL = array(-Inf, maxiter)
+    # iter = 0
     converged = FALSE
     while( !converged & iter<maxiter) {
         iter = iter + 1
         # calculate in-sample prediction errors
-        browser()
         temp = smogllim_inverse_map(yapp, theta)
         pred = temp$x_exp[1:Lt, , drop=FALSE]
         pred_SE = apply((pred - tapp)^2, 2, sum)
+        cat(sprintf("%d %.4f\n", iter, mean(pred_SE)))
         dropID = which(pred_SE > dropTh)
         r[dropID, , ] = 0
 
-        theta = smogllim_Maximization(tapp, yapp, r, muw, Sw, cstr, minSize)
+        temp_list = NULL
+        if(minSize >0){
+            for(k in 1:dim(r)[2]) {
+                for(l in 1:dim(r)[3]){
+                    if(sum(r[, k, l])<minSize){
+                        theta$c[, k, l] = NaN
+                    }
+                }
+            }
+        }
 
         tmp = smogllim_ExpectationZU(tapp, yapp, theta)
         r = tmp$r
@@ -151,6 +160,8 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
         tmp = smogllim_ExpectationW(tapp, yapp, theta, r)
         muw = tmp$muw
         Sw = tmp$Sw
+
+        theta = smogllim_Maximization(tapp, yapp, r, muw, Sw, cstr, minSize)
 
         if(iter>=5){
             deltaLL_total = max(LL[1:iter]) - min(LL[1:iter])

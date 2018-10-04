@@ -23,6 +23,8 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
     }
     rk_bar = array(0, K)
     rkl_bar = array(0, c(K, M))
+
+
     for (k in 1:K){
 
         #  % Posteriors' sums
@@ -30,8 +32,9 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
         rk_bar[k] = sum(rk) # 1x1
         rnk = apply(r[, k, ], 1, sum)
         if(Lw>0) {
-            x = muw[, , k]
-            Skx = Sw[, , k]
+            x = rbind(tapp ,muw[, , k])
+            Skx = rbind(cbind(matrix(0, Lt, Lt), matrix(0, Lt, Lw)),
+                        cbind(matrix(0, Lw, Lt), Sw[, , k]))
 
             #calculate the global center
             yk_bar = rowSums(sweep(yapp, 2, rk, "*"))/rk_bar[k]
@@ -48,20 +51,21 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
         #% Robustly compute optimal transformation matrix Ak
         if(!all(Skx==0))
         {
-          if(N>=L & det(Skx+tcrossprod(x_stark)) >10^(-8)){
-            Akw = tcrossprod(y_stark,x_stark) %*% qr.solve(Skx+tcrossprod(x_stark)) #% DxL
-          } else {
-            Akw = tcrossprod(y_stark,x_stark) %*% ginv(Skx+tcrossprod(x_stark))
-          } #%DxL
+            if(N>=L & det(Skx+tcrossprod(x_stark)) >10^(-8)){
+            A = tcrossprod(y_stark,x_stark) %*% qr.solve(Skx+tcrossprod(x_stark))
+            } else {
+            A = tcrossprod(y_stark,x_stark) %*% ginv(Skx+tcrossprod(x_stark))
+            }
+            Akw = A[, (Lt+1):L]
         } else if(!all(x_stark==0)){
-          if(N>=L & det(tcrossprod(x_stark))>10^(-8)) {
-            Akw = tcrossprod(y_stark,x_stark) %*% qr.solve(tcrossprod(x_stark))
-          } else if (N<L && det(crossprod(x_stark))>10^(-8)) {
-            Akw = y_stark %*% solve(crossprod(x_stark)) %*% t(x_stark)
-          }  else {
-            Akw = y_stark %*% ginv(x_stark)  # DxL
-          }
-
+            if(N>=L & det(tcrossprod(x_stark))>10^(-8)) {
+            A = tcrossprod(y_stark,x_stark) %*% qr.solve(tcrossprod(x_stark))
+            } else if (N<L && det(crossprod(x_stark))>10^(-8)) {
+            A = y_stark %*% solve(crossprod(x_stark)) %*% t(x_stark)
+            }  else {
+            A = y_stark %*% ginv(x_stark)  # DxL
+            }
+            Akw = A[, (Lt+1):L]
         } else {# Correspond to null variance in cluster k or L=0:
             Akw = 0 # DxL
         }
@@ -74,6 +78,7 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
     for(l in 1:M){
         rkl = r[, k, l]
         rkl_bar[k, l] = sum(rkl)
+
         if(round(rkl_bar[k, l]) < minSize || round(rkl_bar[k, l])==0) {
             th$c[, k, l] = NaN
             next
@@ -88,15 +93,7 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
         # Compute optimal weight pik
         th$rho[k, l] = rkl_bar[k, l]/N
 
-        # if(Lw>0) {
-        #     x = rbind(tapp, array(0, c(Lw, N))) # LxN
-        #     Skx = rbind(cbind(matrix(0, Lt, Lt),
-        #                       matrix(0, Lt, Lw)),
-        #                 cbind(matrix(0, Lw, Lt), Sw[, , k]))# LxL
-        # } else {
         x = tapp # LtxN
-        #   Skx = matrix(0, Lt, Lt) #LtxLt
-        # }
 
         yk_bar = rowSums(sweep(newy, 2, rkl, "*"))/rkl_bar[k, l] # Dx1
         xk_bar = rowSums(sweep(x, 2, rkl, "*"))/rkl_bar[k, l] # Lx1

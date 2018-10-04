@@ -20,8 +20,8 @@ smogllim_ExpectationZU = function(tapp, yapp, th, dropID){
             next
         }
 
-        muyk=th$b[, k, l, drop=FALSE] # Dx1
-        covyk= th$Sigma[, , k] # DxD
+        muyk = th$b[, k, l, drop=FALSE] # Dx1
+        covyk = th$Sigma[, , k] # DxD
         if(Lt > 0) {
             if(L == 1) {
               Atk = th$A[, 1:Lt , k, l, drop=FALSE]
@@ -73,8 +73,8 @@ smogllim_ExpectationZU = function(tapp, yapp, th, dropID){
     r = r[, validClust, ]
     r = round(r, 8)
     #dont do reinit at this point
-    #if (sum(ec)==0)
-    #    {print('REINIT! ');
+    if (sum(ec)==0)
+       {print('REINIT! ')}
     #    r = emgm(rbind(tapp,yapp), K, 2, verb)$R;
     #    ec=rep(TRUE,ncol(r));} else {r=r[,ec];}
     return(list(r=r, LL=LL, ec=ec))
