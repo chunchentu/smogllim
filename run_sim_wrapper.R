@@ -16,7 +16,7 @@ M = 5
 minSize = 5
 Lw = 8
 for(K in c(5, 10, 15)){
-    for(dropTh in seq(0.1, 0.2, 0.1)){
+    for(dropTh in seq(0.1, 1, 0.1)){
         cat(sprintf("cvID: %d, K: %d, M: %d, Lw: %d\n minSize: %d, dropTh: %.2f\n save_prefix: %s\n", cvID, K, M, Lw, minSize, dropTh, save_prefix))
         run_sim_fun(cvID, K, M, Lw, minSize, dropTh, data_source=data_source, save_prefix=save_prefix)
     }

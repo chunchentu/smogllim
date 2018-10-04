@@ -1,5 +1,4 @@
 library(R.matlab)
-library(xLLiM)
 library(smogllim)
 library(mclust)
 
@@ -88,14 +87,17 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
             
             temp_cluster = Mclust(t(temp_t), 1:M, verbose=FALSE)
             if(is.null(temp_cluster)){
-                temp_cluster = kmeans(t(temp_t), M)
-                temp_assign = temp_cluster$cluster
+                # temp_cluster = kmeans(t(temp_t), M)
+                # temp_assign = temp_cluster$cluster
+                temp_r[index, 1] = c
+                temp_r[index, 2] = 1
              } else {
                 temp_assign = temp_cluster$classification
+                temp_r[index, 1] = c
+                temp_r[index, 2] = temp_assign
              }
             
-            temp_r[index, 1] = c
-            temp_r[index, 2] = temp_assign
+            
             
         }
     }
