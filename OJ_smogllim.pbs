@@ -1,0 +1,70 @@
+#!/bin/bash
+##This names the job for the queueing system
+#PBS -N OJ_smogllim
+##This denotes the queue that the job should be run in.
+#PBS -q flux
+
+##This denotes the allocation within the queue
+#PBS -A stats_flux
+
+##Setting "quality of service" = flux appears to be required.
+##PBS -l qos=flux
+
+##This denotes the number of nodes and processors for the job.
+##PBS -l nodes=1:ppn=2 
+##For embarrassingly parallel computing, instead select 
+##the number of processors, sometimes adding one to run the
+##master R process
+#PBS -l procs=1,pmem=8GB
+
+## job array
+#PBS -t 1-50%25
+
+##This is the run time (hh:mm:ss) that your job will be allocated.  
+##It will be killed if it exceeds its walltime.
+##Extreme over-estimation may slow your job in the queue.
+#PBS -l walltime=03:00:00:00
+
+##Import the shell's environment
+##This is important if you're using Environment Modules 
+##(i.e. module load ...)''
+#PBS -V
+
+##In what circumstances should an email be sent regarding this job?  
+##'a' is for aborted jobs,
+##'b' is when the job starts, 
+##'e' is when the job exits.
+#PBS -m abe
+
+##Where should email be sent when the job starts and stops?
+#PBS -M timtu@umich.edu
+
+##Concatenates standard output and error messages.
+##This is recommented at http://cac.engin.umich.edu/resources/software/pbs
+#PBS -j oe
+
+#PBS -o logs_smogllim/
+#PBS -e logs_smogllim/
+
+##code to be run
+
+##   By default,
+##   PBS scripts execute in your home directory, not the
+##   directory from which they were submitted. The following
+##   line places you in the directory from which the job
+##   was submitted.
+##
+cd $PBS_O_WORKDIR
+
+save_dir="\"/scratch/stats_flux/timtu/smogllim/\""
+mkdir -p ${save_dir}
+
+mkdir -p smogllim_out
+cvID=${PBS_ARRAYID}
+data_source="\"OJ\""
+RoutName="smogllim_out/cv${cvID}.out"
+
+
+R CMD BATCH "--no-save --no-restore --args cvID=$cvID data_source=${data_source} save_prefix=${save_dir}" run_sim_wrapper.R $RoutName
+
+

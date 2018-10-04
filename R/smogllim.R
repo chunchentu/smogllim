@@ -24,16 +24,23 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
     temp_r = array(0, c(N, 2))
     for(c in sort(unique(cluster_assign))){
         index = which(cluster_assign==c)
-        if(length(index)==1) {
-            temp_r[index, ] = c(c, 1)
+        if(length(index)<=M) {
+            temp_r[index, 1] = c
+            temp_r[index, 2] = 1
         } else {
             temp_t = tapp[, index, drop=FALSE]
             temp_cluster = Mclust(t(temp_t), M, verbose=FALSE)
-            temp_assign = temp_cluster$classification
-            temp_r[index, 1] = c
-            temp_r[index, 2] = temp_assign
+            if(is.null(temp_cluster)){
+                temp_r[index, 1] = c
+                temp_r[index, 2] = 1
+            } else {
+                temp_assign = temp_cluster$classification
+                temp_r[index, 1] = c
+                temp_r[index, 2] = temp_assign
+            }
         }
     }
+
     r = array(0, c(N, K, M))
     for(i in 1:N){
         r[i, temp_r[i, 1], temp_r[i, 2]] = 1
@@ -151,7 +158,6 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
         temp = smogllim_inverse_map(yapp, theta)
         pred = temp$x_exp[1:Lt, , drop=FALSE]
         pred_SE = apply((pred - tapp)^2, 2, sum)
-        cat(sprintf("%d %.4f\n", iter, mean(pred_SE)))
         dropID = which(pred_SE > dropTh)
         r[dropID, , ] = 0
 

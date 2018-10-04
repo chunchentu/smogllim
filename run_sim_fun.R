@@ -20,7 +20,7 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     dir.create(file.path(save_prefix, data_source), showWarnings = FALSE)
     save_prefix = file.path(save_prefix, data_source)
     save_name = file.path(save_prefix,
-                          sprintf("cv%d_K%d_M%d_Lw%d_size%d_th%.2f.Rdata",
+                          sprintf("smogllim_cv%d_K%d_M%d_Lw%d_size%d_th%.2f.Rdata",
                                   cvID, K, M, Lw, minSize, dropTh))
     cstr = list(Sigma="*")
 
@@ -35,6 +35,7 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
         data_name = "face_data.mat"
         cv_name = "face_cv_index.mat"
     }
+    temp = readMat(data_name)
     yapp = temp$Y
     tapp = temp$t
 
@@ -46,6 +47,9 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     temp_cv = readMat(cv_name)
     train_index = which(temp_cv$cv.train.mat[, cvID]==1)
     test_index = which(temp_cv$cv.test.mat[, cvID]==1)
+
+    train_num = length(train_index)
+    test_num = length(test_index)
 
     train_y = yapp[, train_index]
     train_t = tapp[, train_index, drop=FALSE]
@@ -70,21 +74,29 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     cat(sprintf("GLLiM: Train MSE: %.4f, test MSE: %.4f\n",
                                                 gllim_train_mse, gllim_test_mse))
 
-
     gllim_r = round(gllim_result$r)
 
     cluster_assign = apply(gllim_r, 1, which.max)
-    temp_r = array(0, c(N, 2))
+    temp_r = array(0, c(train_num, 2))
     for(c in sort(unique(cluster_assign))){
         index = which(cluster_assign==c)
-        if(length(index)==1) {
-            temp_r[index, ] = c(c, 1)
+        if(length(index)<=M) {
+            temp_r[index, 1] = c
+            temp_r[index, 2] = 1
         } else {
             temp_t = train_t[, index, drop=FALSE]
-            temp_cluster = Mclust(t(temp_t), M, verbose=FALSE)
-            temp_assign = temp_cluster$classification
+            
+            temp_cluster = Mclust(t(temp_t), 1:M, verbose=FALSE)
+            if(is.null(temp_cluster)){
+                temp_cluster = kmeans(t(temp_t), M)
+                temp_assign = temp_cluster$cluster
+             } else {
+                temp_assign = temp_cluster$classification
+             }
+            
             temp_r[index, 1] = c
             temp_r[index, 2] = temp_assign
+            
         }
     }
     in_r2 = array(0, c(train_num, K, M))
@@ -102,5 +114,6 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     smogllim_test_mse = mean(apply(smogllim_test_diff^2, 2, sum))
     cat(sprintf("SMoGLLiM Train MSE: %.4f, test MSE: %.4f\n",
                                             smogllim_train_mse, smogllim_test_mse))
-    save.image()
+    save(list = ls(all.names = TRUE), file = save_name, envir = 
+  environment())
 }
