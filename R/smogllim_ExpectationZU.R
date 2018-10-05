@@ -1,4 +1,4 @@
-smogllim_ExpectationZU = function(tapp, yapp, th, dropID){
+smogllim_ExpectationZU = function(tapp, yapp, th, dropID=NULL){
 
     D = nrow(yapp)
     N = ncol(yapp)
@@ -53,7 +53,7 @@ smogllim_ExpectationZU = function(tapp, yapp, th, dropID){
     LL = sum(temp_lognormr)
     #need to reshape the size to make sweep work
     logr_reshape = matrix(logr, nrow=N, ncol=K*M)
-    log_posProb = sweep(logr_reshape,1, lognormr, "-")
+    log_posProb = sweep(logr_reshape, 1, lognormr, "-")
     r = array(exp(log_posProb), c(N,K,M))
     r = round(r, 8)
 

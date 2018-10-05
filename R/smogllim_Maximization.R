@@ -32,7 +32,7 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
         rk_bar[k] = sum(rk) # 1x1
         rnk = apply(r[, k, ], 1, sum)
         if(Lw>0) {
-            x = rbind(tapp ,muw[, , k])
+            x = rbind(tapp, muw[, , k])
             Skx = rbind(cbind(matrix(0, Lt, Lt), matrix(0, Lt, Lw)),
                         cbind(matrix(0, Lw, Lt), Sw[, , k]))
 

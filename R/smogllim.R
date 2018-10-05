@@ -150,7 +150,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
     # enhance training
 
     # LL = array(-Inf, maxiter)
-    # iter = 0
+    iter = 0
     converged = FALSE
     while( !converged & iter<maxiter) {
         iter = iter + 1
@@ -171,8 +171,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
                 }
             }
         }
-
-        tmp = smogllim_ExpectationZU(tapp, yapp, theta)
+        tmp = smogllim_ExpectationZU(tapp, yapp, theta, dropID=dropID)
         r = tmp$r
         LL[iter] = tmp$LL
         ec = tmp$ec
@@ -186,7 +185,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
 
         theta = smogllim_Maximization(tapp, yapp, r, muw, Sw, cstr, minSize)
 
-        if(iter>=5){
+        if(iter>=7){
             deltaLL_total = max(LL[1:iter]) - min(LL[1:iter])
             deltaLL = LL[iter] - LL[iter-1]
             converged = (deltaLL <= (0.001*deltaLL_total))

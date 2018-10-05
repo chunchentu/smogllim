@@ -16,7 +16,7 @@ K = 10
 M = 5
 Lw = 10
 minSize = 5
-dropTh = 0.3
+
 cstr = list(Sigma="i")
 
 cvID = 1
@@ -88,14 +88,16 @@ in_r2 = array(0, c(train_num, K, M))
 for(i in 1:train_num){
     in_r2[i, temp_r[i, 1], temp_r[i, 2]] = 1
 }
-smogllim_result = smogllim(train_t, train_y, K, M, in_r=in_r2, Lw=Lw, cstr=cstr,
-                                                minSize=minSize, dropTh=dropTh)
-smogllim_pred = smogllim_inverse_map(yapp, smogllim_result$theta)
-smogllim_pred_t = smogllim_pred$x_exp[1:Lt, , drop=FALSE]
+for(dropTh in seq(0.1, 1, 0.2)) {
+    smogllim_result = smogllim(train_t, train_y, K, M, in_r=in_r2, Lw=Lw, cstr=cstr,
+                                                    minSize=minSize, dropTh=dropTh)
+    smogllim_pred = smogllim_inverse_map(yapp, smogllim_result$theta)
+    smogllim_pred_t = smogllim_pred$x_exp[1:Lt, , drop=FALSE]
 
-smogllim_train_diff = train_t - smogllim_pred_t[, train_index, drop=FALSE]
-smogllim_train_mse = mean(apply(smogllim_train_diff^2, 2, sum))
-smogllim_test_diff = test_t - smogllim_pred_t[, test_index, drop=FALSE]
-smogllim_test_mse = mean(apply(smogllim_test_diff^2, 2, sum))
-cat(sprintf("SMoGLLiM Train MSE: %.4f, test MSE: %.4f\n",
-                                        smogllim_train_mse, smogllim_test_mse))
+    smogllim_train_diff = train_t - smogllim_pred_t[, train_index, drop=FALSE]
+    smogllim_train_mse = mean(apply(smogllim_train_diff^2, 2, sum))
+    smogllim_test_diff = test_t - smogllim_pred_t[, test_index, drop=FALSE]
+    smogllim_test_mse = mean(apply(smogllim_test_diff^2, 2, sum))
+    cat(sprintf("dropTh: %.4f SMoGLLiM Train MSE: %.4f, test MSE: %.4f\n",
+                                dropTh, smogllim_train_mse, smogllim_test_mse))
+}
