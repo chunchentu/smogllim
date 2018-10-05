@@ -30,7 +30,7 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     if(data_source=="OJ"){
         data_name = "OJ_data.mat"
         cv_name = "OJ_cv_index.mat"
-    } else if(data_source=="Face"){
+    } else if(data_source=="face"){
         data_name = "face_data.mat"
         cv_name = "face_cv_index.mat"
     }

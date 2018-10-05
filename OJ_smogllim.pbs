@@ -65,6 +65,6 @@ data_source="\"OJ\""
 RoutName="smogllim_out/cv${cvID}.out"
 
 
-R CMD BATCH "--no-save --no-restore --args cvID=$cvID data_source=${data_source} save_prefix=${save_dir}" run_sim_wrapper.R $RoutName
+R CMD BATCH "--no-save --no-restore --args cvID=$cvID data_source=${data_source} save_prefix=${save_dir}" run_sim_OJ_wrapper.R $RoutName
 
 
