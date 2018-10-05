@@ -185,7 +185,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
 
         theta = smogllim_Maximization(tapp, yapp, r, muw, Sw, cstr, minSize)
 
-        if(iter>=7){
+        if(iter>=5){
             deltaLL_total = max(LL[1:iter]) - min(LL[1:iter])
             deltaLL = LL[iter] - LL[iter-1]
             converged = (deltaLL <= (0.001*deltaLL_total))
