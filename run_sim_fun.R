@@ -62,6 +62,7 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     for(i in 1:train_num){
         in_r[i, temp_cluster$classification[i]] = 1
     }
+    print(apply(in_r, 2, sum))
     gllim_result = gllim(train_t, train_y, K, in_r=NULL, Lw=Lw, cstr=cstr)
     gllim_pred = gllim_inverse_map(yapp, gllim_result)
     gllim_pred_t = gllim_pred$x_exp[1:Lt, , drop=FALSE]
