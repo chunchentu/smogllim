@@ -1,4 +1,4 @@
-smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
+smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0, dropID=NULL) {
 
     K = dim(r)[2]
     M = dim(r)[3]
@@ -91,7 +91,7 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
         th$Gamma[1:Lt, 1:Lt, k, l] = tcrossprod(diffGamma) / rkl_bar[k, l];
 
         # Compute optimal weight pik
-        th$rho[k, l] = rkl_bar[k, l]/N
+        th$rho[k, l] = rkl_bar[k, l]/(N - length(dropID))
 
         x = tapp # LtxN
 
@@ -205,7 +205,7 @@ smogllim_Maximization = function(tapp, yapp, r, muw, Sw, cstr, minSize=0) {
     if(substr(cstr$Sigma, 2, 2)=="*") {
         #%%% Equality constraint on Sigma
         th$Sigma = sweep(th$Sigma, 3, rk_bar, "*")
-        tempMat = apply(th$Sigma, 1:2, sum)/N
+        tempMat = apply(th$Sigma, 1:2, sum)/(N-length(dropID))
         th$Sigma = array(tempMat, dim=c(D, D, K))
     }
     return(th)

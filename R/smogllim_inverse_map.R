@@ -9,6 +9,13 @@ smogllim_inverse_map = function(y, th){
     logalpha = array(0, c(N, K, M))
     for(k in 1:K) {
         for(l in 1:M) {
+            if(any(is.nan(th$c[, k, l]))) {
+              logalpha[, k, l] = -Inf
+              proj[, , k, l] = 0
+              next
+            }
+
+
             if(L==1) {
                 Akl = th$A[, , k, l, drop=FALSE]
             } else {
@@ -25,11 +32,7 @@ smogllim_inverse_map = function(y, th){
 
             rhokl = th$rho[k, l]
 
-            if(any(is.nan(ckl))) {
-              logalpha[, k, l] = -Inf
-              proj[, , k, l] = 0
-              next
-            }
+
 
             ckls=Akl%*%ckl+bkl; ## OK
 

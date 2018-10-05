@@ -55,8 +55,8 @@ smogllim_ExpectationZU = function(tapp, yapp, th, dropID=NULL){
     logr_reshape = matrix(logr, nrow=N, ncol=K*M)
     log_posProb = sweep(logr_reshape, 1, lognormr, "-")
     r = array(exp(log_posProb), c(N,K,M))
+    r[dropID, , ] = 0
     r = round(r, 8)
-
     # remove empty clusters only when the whole global cluster is empty
     ec = array(TRUE, c(K, M)) #% false if component k is empty.
     for(k in 1:K) {
@@ -70,7 +70,7 @@ smogllim_ExpectationZU = function(tapp, yapp, th, dropID=NULL){
     #global cluster i would be removed if sumEC[i] = 0
     sumEC = apply(ec, 1, sum)
     validClust = sumEC > 0
-    r = r[, validClust, ]
+    r = r[, validClust, , drop=FALSE]
     r = round(r, 8)
     #dont do reinit at this point
     if (sum(ec)==0)

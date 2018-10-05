@@ -21,7 +21,7 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     save_name = file.path(save_prefix,
                           sprintf("smogllim_cv%d_K%d_M%d_Lw%d_size%d_th%.2f.Rdata",
                                   cvID, K, M, Lw, minSize, dropTh))
-    cstr = list(Sigma="*")
+    cstr = list(Sigma="i")
 
     set.seed(cvID)
 
@@ -84,7 +84,7 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
             temp_r[index, 2] = 1
         } else {
             temp_t = train_t[, index, drop=FALSE]
-            
+
             temp_cluster = Mclust(t(temp_t), 1:M, verbose=FALSE)
             if(is.null(temp_cluster)){
                 # temp_cluster = kmeans(t(temp_t), M)
@@ -96,9 +96,9 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
                 temp_r[index, 1] = c
                 temp_r[index, 2] = temp_assign
              }
-            
-            
-            
+
+
+
         }
     }
     in_r2 = array(0, c(train_num, K, M))
@@ -116,6 +116,6 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     smogllim_test_mse = mean(apply(smogllim_test_diff^2, 2, sum))
     cat(sprintf("SMoGLLiM Train MSE: %.4f, test MSE: %.4f\n",
                                             smogllim_train_mse, smogllim_test_mse))
-    save(list = ls(all.names = TRUE), file = save_name, envir = 
+    save(list = ls(all.names = TRUE), file = save_name, envir =
   environment())
 }
