@@ -160,7 +160,6 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
         pred_SE = apply((pred - tapp)^2, 2, sum)
         dropID = which(pred_SE > dropTh)
         r[dropID, , ] = 0
-        cat(sprintf("%d Drop ID num: %d, sumr: %f\n", iter, length(dropID), sum(r)))
 
         temp_list = NULL
         if(minSize >0){
