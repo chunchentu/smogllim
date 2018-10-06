@@ -1,7 +1,6 @@
 library(R.matlab)
 library(smogllim)
 library(mclust)
-library(xLLiM)
 
 run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
                       data_source="OJ", save_prefix="."){
