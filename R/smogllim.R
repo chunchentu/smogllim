@@ -119,13 +119,12 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
         muw = tmp$muw
         Sw = tmp$Sw
     }
-
     LL = array(-Inf, maxiter)
     iter = 0
     converged = FALSE
     while( !converged & iter<maxiter) {
         iter = iter + 1
-
+        # browser()
         theta = smogllim_Maximization(tapp, yapp, r, muw, Sw, cstr)
         tmp = smogllim_ExpectationZU(tapp, yapp, theta, NULL)
         r = tmp$r
