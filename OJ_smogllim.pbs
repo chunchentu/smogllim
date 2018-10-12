@@ -59,10 +59,10 @@ cd $PBS_O_WORKDIR
 save_dir="\"/scratch/stats_flux/timtu/smogllim/\""
 mkdir -p ${save_dir}
 
-mkdir -p smogllim_out
+mkdir -p smogllim_OJ_out
 cvID=${PBS_ARRAYID}
 data_source="\"OJ\""
-RoutName="smogllim_out/cv${cvID}.out"
+RoutName="smogllim_OJ_out/cv${cvID}.out"
 
 
 R CMD BATCH "--no-save --no-restore --args cvID=$cvID data_source=${data_source} save_prefix=${save_dir}" run_sim_OJ_wrapper.R $RoutName
