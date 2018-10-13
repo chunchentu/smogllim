@@ -17,3 +17,10 @@ temp = smogllim_df %>% filter(Lw==Lw & data_type=="test" & cvID<=10 & K==5) %>%
     group_by(K, cvID, dropTh) %>% summarize(mse=mean(SE))
 temp$cvID = factor(temp$cvID)
 ggplot(temp) + geom_line(aes(dropTh, mse, color=cvID))
+
+temp_gllim = gllim_df %>% filter(Lw==Lw & data_type=="test" & cvID<=10) %>%
+    group_by(K) %>% summarize(mse=median(SE))
+
+
+temp = smogllim_df %>% filter(Lw==Lw & data_type=="test" & cvID<=10) %>%
+    group_by(K, dropTh) %>% summarize(mse=median(SE))

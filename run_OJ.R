@@ -17,7 +17,7 @@ M = 5
 Lw = 10
 minSize = 5
 
-cstr = list(Sigma="i")
+cstr = list(Sigma="*")
 
 cvID = 1
 set.seed(cvID)
