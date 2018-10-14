@@ -60,5 +60,5 @@ smogllim_inverse_map = function(y, th){
     temp2 = apply(temp1, 1:2, sum)
     x_exp = array(temp2, c(L, N))
 
-    return(list(x_exp=x_exp, alpha=alpha))
+    return(list(x_exp=x_exp, alpha=alpha, proj=proj))
 }

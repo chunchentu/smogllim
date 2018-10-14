@@ -29,7 +29,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
             temp_r[index, 2] = 1
         } else {
             temp_t = tapp[, index, drop=FALSE]
-            temp_cluster = Mclust(t(temp_t), 1:M, verbose=FALSE)
+            temp_cluster = Mclust(t(temp_t), M, verbose=FALSE)
             if(is.null(temp_cluster)){
                 temp_r[index, 1] = c
                 temp_r[index, 2] = 1
@@ -110,78 +110,123 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
 
         tmp = smogllim_ExpectationZU(tapp, yapp, theta)
         r = tmp$r
-        ec = tmp$ec
-        tmp = smogllim_remove_empty_clusters(theta, cstr, ec)
+        tmp = smogllim_remove_empty_clusters(theta, cstr, r)
         theta = tmp$th
         cstr = tmp$cstr
-
-        tmp = smogllim_ExpectationW(tapp, yapp, theta, r)
-        muw = tmp$muw
-        Sw = tmp$Sw
-    }
-    LL = array(-Inf, maxiter)
-    iter = 0
-    converged = FALSE
-    while( !converged & iter<maxiter) {
-        iter = iter + 1
-        # browser()
-        theta = smogllim_Maximization(tapp, yapp, r, muw, Sw, cstr)
-        tmp = smogllim_ExpectationZU(tapp, yapp, theta, NULL)
         r = tmp$r
-        ec = tmp$ec
-        LL[iter] = tmp$LL
-    	tmp = smogllim_remove_empty_clusters(theta, cstr, ec)
-    	theta = tmp$th
-    	cstr = tmp$cstr
 
         tmp = smogllim_ExpectationW(tapp, yapp, theta, r)
         muw = tmp$muw
         Sw = tmp$Sw
-
-        if(iter>=5){
-            deltaLL_total = max(LL[1:iter]) - min(LL[1:iter])
-            deltaLL = LL[iter] - LL[iter-1]
-            converged = (deltaLL <= (0.001*deltaLL_total))
-    	}
-
     }
+    # LL = array(-Inf, maxiter)
+    # iter = 0
+    # converged = FALSE
+    # while( !converged & iter<maxiter) {
+    #     iter = iter + 1
+    #     theta = smogllim_Maximization(tapp, yapp, r, muw, Sw, cstr)
+    #     tmp = smogllim_ExpectationZU(tapp, yapp, theta, NULL)
+    #     r = tmp$r
+    #     LL[iter] = tmp$LL
+    # 	tmp = smogllim_remove_empty_clusters(theta, cstr, r)
+    # 	theta = tmp$th
+    # 	cstr = tmp$cstr
+    # 	r = tmp$r
+    #
+    #     tmp = smogllim_ExpectationW(tapp, yapp, theta, r)
+    #     muw = tmp$muw
+    #     Sw = tmp$Sw
+    #
+    #     if(iter>=5){
+    #         deltaLL_total = max(LL[1:iter]) - min(LL[1:iter])
+    #         deltaLL = LL[iter] - LL[iter-1]
+    #         converged = (deltaLL <= (0.001*deltaLL_total))
+    # 	}
+    #
+    # }
 
     # enhance training
 
-    # LL = array(-Inf, maxiter)
-    # iter = 0
+    LL = array(-Inf, maxiter)
+    iter = 0
     converged = FALSE
+    # temp_pred = smogllim_inverse_map(yapp, theta)
+    # proj = temp_pred$proj[1:Lt, , , ]
+    dropID = NULL
     while( !converged & iter<maxiter) {
         iter = iter + 1
-        # calculate in-sample prediction errors
-        temp = smogllim_inverse_map(yapp, theta)
-        pred = temp$x_exp[1:Lt, , drop=FALSE]
+
+        tmp = smogllim_ExpectationZU(tapp, yapp, theta, dropID=dropID)
+        r = tmp$r
+        LL[iter] = tmp$LL
+        temp_pred = smogllim_inverse_map(yapp, theta)
+        pred = temp_pred$x_exp[1:Lt, , drop=FALSE]
+        proj = temp_pred$proj[1:Lt, , , ,drop=FALSE]
         pred_SE = apply((pred - tapp)^2, 2, sum)
         dropID = which(pred_SE > dropTh)
         r[dropID, , ] = 0
 
-        temp_list = NULL
-        if(minSize >0){
-            for(k in 1:dim(r)[2]) {
-                for(l in 1:dim(r)[3]){
-                    if(sum(r[, k, l])<minSize){
-                        theta$c[, k, l] = NaN
+    	# reassign
+        # iterate through cluster with clsuter size smaller than minSize
+    	all_cluster_weight = apply(r, 2:3, sum)
+    	K = dim(all_cluster_weight)[1]
+    	M = dim(all_cluster_weight)[2]
+    	proj_se = apply(sweep(proj, 1:2, tapp, "-")^2, 2:4, sum)
+    	for(cluster_weight in 0:(minSize-1)){
+    	    all_ind = which(all_cluster_weight >= cluster_weight &
+    	                    all_cluster_weight < (cluster_weight+1))
+    	    for(ind in all_ind){
+                k = ((ind-1) %% K) + 1
+                l = floor((ind-1) / K) + 1
+                proj_se[, k, l] = Inf
+                # data belongs to cluster (k, l)
+                d_index = which(r[, k, l] > 0)
+                for(temp_index in d_index){
+                    # find the cluster with smallest prediction error
+                    # drop if the smallest predcition error is less than dropTh
+                    temp_index_se = proj_se[temp_index, , ]
+                    temp_ind = which.min(temp_index_se)
+                    if(temp_index_se[temp_ind] > dropTh){
+                        dropID = c(dropID, temp_index)
+                        next
                     }
+                    temp_k = ((temp_ind-1) %% K) + 1
+                    temp_l = floor((temp_ind-1) / K) + 1
+                    r[temp_index, , ] = 0
+                    r[temp_index, temp_k, temp_l] = 1
                 }
-            }
-        }
-        tmp = smogllim_ExpectationZU(tapp, yapp, theta, dropID=dropID)
-        r = tmp$r
-        LL[iter] = tmp$LL
-        ec = tmp$ec
-    	tmp = smogllim_remove_empty_clusters(theta, cstr, ec)
+    	    }
+    	    all_cluster_weight = apply(r, 2:3, sum)
+    	}
+
+        tmp = smogllim_remove_empty_clusters(theta, cstr, r)
     	theta = tmp$th
     	cstr = tmp$cstr
+    	r = tmp$r
 
         tmp = smogllim_ExpectationW(tapp, yapp, theta, r)
         muw = tmp$muw
         Sw = tmp$Sw
         theta = smogllim_Maximization(tapp, yapp, r, muw, Sw, cstr, minSize, dropID)
+
+        # calculate in-sample prediction errors
+        # temp = smogllim_inverse_map(yapp, theta)
+        # pred = temp$x_exp[1:Lt, , drop=FALSE]
+        # pred_SE = apply((pred - tapp)^2, 2, sum)
+        # dropID = which(pred_SE > dropTh)
+        # r[dropID, , ] = 0
+
+        # temp_list = NULL
+        # if(minSize >0){
+        #     for(k in 1:dim(r)[2]) {
+        #         for(l in 1:dim(r)[3]){
+        #             if(sum(r[, k, l])<minSize){
+        #                 theta$c[, k, l] = NaN
+        #             }
+        #         }
+        #     }
+        # }
+
 
         if(iter>=3){
             deltaLL_total = max(LL[1:iter]) - min(LL[1:iter])
