@@ -85,7 +85,7 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
         } else {
             temp_t = train_t[, index, drop=FALSE]
 
-            temp_cluster = Mclust(t(temp_t), 1:M, verbose=FALSE)
+            temp_cluster = Mclust(t(temp_t), M, verbose=FALSE)
             if(is.null(temp_cluster)){
                 # temp_cluster = kmeans(t(temp_t), M)
                 # temp_assign = temp_cluster$cluster

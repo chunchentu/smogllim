@@ -29,7 +29,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
             temp_r[index, 2] = 1
         } else {
             temp_t = tapp[, index, drop=FALSE]
-            temp_cluster = Mclust(t(temp_t), 1:M, verbose=FALSE)
+            temp_cluster = Mclust(t(temp_t), M, verbose=FALSE)
             if(is.null(temp_cluster)){
                 temp_r[index, 1] = c
                 temp_r[index, 2] = 1
