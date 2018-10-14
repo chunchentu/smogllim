@@ -73,8 +73,40 @@ smogllim_ExpectationZU = function(tapp, yapp, th, dropID=NULL){
     r = r[, validClust, , drop=FALSE]
     r = round(r, 8)
     #dont do reinit at this point
-    if (sum(ec)==0)
-       {print('REINIT! ')}
+    if (sum(ec)==0){
+        print('REINIT! ')
+        gllim_result = gllim(tapp, yapp, K, Lw=Lw, cstr=cstr)
+        gllim_r = round(gllim_result$r)
+
+    cluster_assign = apply(gllim_r, 1, which.max)
+    temp_r = array(0, c(N, 2))
+    for(c in sort(unique(cluster_assign))){
+        index = which(cluster_assign==c)
+        if(length(index)<=M) {
+            temp_r[index, 1] = c
+            temp_r[index, 2] = 1
+        } else {
+            temp_t = tapp[, index, drop=FALSE]
+            temp_cluster = Mclust(t(temp_t), 1:M, verbose=FALSE)
+            if(is.null(temp_cluster)){
+                temp_r[index, 1] = c
+                temp_r[index, 2] = 1
+            } else {
+                temp_assign = temp_cluster$classification
+                temp_r[index, 1] = c
+                temp_r[index, 2] = temp_assign
+            }
+        }
+    }
+
+    r = array(0, c(N, K, M))
+    for(i in 1:N){
+        r[i, temp_r[i, 1], temp_r[i, 2]] = 1
+    }
+    ec = array(TRUE, c(K, M))
+
+
+        }
     #    r = emgm(rbind(tapp,yapp), K, 2, verb)$R;
     #    ec=rep(TRUE,ncol(r));} else {r=r[,ec];}
     return(list(r=r, LL=LL, ec=ec))
