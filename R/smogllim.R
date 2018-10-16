@@ -17,11 +17,12 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
     if(! "Sigma" %in% names(cstr)) cstr$Sigma = "*"
 
     if(is.null(in_r)){
-        gllim_result = gllim(tapp, yapp, K, Lw=Lw, cstr=cstr)
+        gllim_result = gllim(tapp, yapp, K, in_r=NULL, cstr=cstr)
         gllim_r = round(gllim_result$r)
 
     cluster_assign = apply(gllim_r, 1, which.max)
     temp_r = array(0, c(N, 2))
+    # browser()
     for(c in sort(unique(cluster_assign))){
         index = which(cluster_assign==c)
         if(length(index)<=M) {
@@ -74,7 +75,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
         }
         Gammaf[(Lt+1):L, (Lt+1):L, , ] = cstr$Gammaw
         theta$Gamma = Gammaf
-
+        # browser()
         # % Initialize Awk with local weighted PCAs on residuals:
         Aw = array(0, c(D, Lw, K))
         for(k in 1:K) {
@@ -119,6 +120,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
         muw = tmp$muw
         Sw = tmp$Sw
     }
+    # browser()
     LL = array(-Inf, maxiter)
     iter = 0
     converged = FALSE
@@ -190,8 +192,8 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
     	}
 
     }
-
+    # browser()
     LLf=LL[iter]
 
-    return(list(theta=theta, LL=LLf, dropID=dropID))
+    return(list(theta=theta, LL=LLf, dropID=dropID, r=r))
 }

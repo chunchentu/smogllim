@@ -55,13 +55,6 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     test_y = yapp[, test_index]
     test_t = tapp[, test_index, drop=FALSE]
 
-
-    # get initialization
-    temp_cluster = Mclust(t(train_t), K, verbose=FALSE)
-    in_r = array(0, c(train_num, K))
-    for(i in 1:train_num){
-        in_r[i, temp_cluster$classification[i]] = 1
-    }
     gllim_result = gllim(train_t, train_y, K, in_r=NULL, Lw=Lw, cstr=cstr)
     gllim_pred = gllim_inverse_map(yapp, gllim_result)
     gllim_pred_t = gllim_pred$x_exp[1:Lt, , drop=FALSE]
@@ -73,40 +66,9 @@ run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
     cat(sprintf("GLLiM: Train MSE: %.4f, test MSE: %.4f\n",
                                                 gllim_train_mse, gllim_test_mse))
 
-    gllim_r = round(gllim_result$r)
-
-    cluster_assign = apply(gllim_r, 1, which.max)
-    temp_r = array(0, c(train_num, 2))
-    for(c in sort(unique(cluster_assign))){
-        index = which(cluster_assign==c)
-        if(length(index)<=M) {
-            temp_r[index, 1] = c
-            temp_r[index, 2] = 1
-        } else {
-            temp_t = train_t[, index, drop=FALSE]
-
-            temp_cluster = Mclust(t(temp_t), 1:M, verbose=FALSE)
-            if(is.null(temp_cluster)){
-                # temp_cluster = kmeans(t(temp_t), M)
-                # temp_assign = temp_cluster$cluster
-                temp_r[index, 1] = c
-                temp_r[index, 2] = 1
-             } else {
-                temp_assign = temp_cluster$classification
-                temp_r[index, 1] = c
-                temp_r[index, 2] = temp_assign
-             }
-
-
-
-        }
-    }
-    in_r2 = array(0, c(train_num, K, M))
-    for(i in 1:train_num){
-        in_r2[i, temp_r[i, 1], temp_r[i, 2]] = 1
-    }
-    smogllim_result = smogllim(train_t, train_y, K, M, in_r=in_r2, Lw=Lw, cstr=cstr,
+    smogllim_result = smogllim(train_t, train_y, K, M, Lw=Lw, cstr=cstr,
                                                     minSize=minSize, dropTh=dropTh)
+
     smogllim_pred = smogllim_inverse_map(yapp, smogllim_result$theta)
     smogllim_pred_t = smogllim_pred$x_exp[1:Lt, , drop=FALSE]
 
