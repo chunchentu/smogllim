@@ -53,8 +53,6 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
         stop("Observations must be in columns and variables in rows")
     }
 
-
-
     if(Lw==0) {
         Sw = NULL
         muw = NULL
@@ -148,8 +146,6 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
 
     }
 
-    # enhance training
-
     # LL = array(-Inf, maxiter)
     # iter = 0
     converged = FALSE
@@ -192,7 +188,6 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
     	}
 
     }
-    # browser()
     LLf=LL[iter]
 
     return(list(theta=theta, LL=LLf, dropID=dropID, r=r))
