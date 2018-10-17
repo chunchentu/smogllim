@@ -77,6 +77,7 @@ ExpectationZ = function(tapp,yapp,th,verb){
     Lt = nrow(tapp)
     L = nrow(th$c)
     Lw=L-Lt;
+
     logr=matrix(NaN,N,K);
     for (k in 1:K){
         if(verb>=3) print(k);
@@ -113,7 +114,7 @@ ExpectationZ = function(tapp,yapp,th,verb){
     if (sum(ec)==0)
         {print('REINIT! ');
         r = emgm(rbind(tapp,yapp), K, 2, verb)$R;
-        ec=rep(TRUE,ncol(r));} else {r=r[,ec];}
+        ec=rep(TRUE,ncol(r));} else {r=r[,ec,drop=FALSE];}
 return(list(r=r,LL=LL,ec=ec))
 }
 
@@ -380,6 +381,7 @@ return(th)
 remove_empty_clusters= function(th1,cstr1,ec){
     th=th1;
     cstr=cstr1;
+
     if(sum(ec) != length(ec))
         {if( !is.null(cstr$ct) && !is.character(cstr$ct))
             cstr$ct=cstr$ct[,ec];
@@ -398,12 +400,12 @@ remove_empty_clusters= function(th1,cstr1,ec){
         if(!is.null(cstr$Sigma) && !is.character(cstr$Sigma))
             cstr$Sigma=cstr$Sigma[,,ec];
 
-        th$c=th$c[,ec];
-        th$Gamma=th$Gamma[,,ec];
-        th$pi=th$pi[ec];
-        th$A=th$A[,,ec];
-        th$b=th$b[,ec];
-        th$Sigma=th$Sigma[,,ec];
+        th$c=th$c[,ec,drop=FALSE];
+        th$Gamma=th$Gamma[,,ec,drop=FALSE];
+        th$pi=th$pi[ec,drop=FALSE];
+        th$A=th$A[,,ec,drop=FALSE];
+        th$b=th$b[,ec,drop=FALSE];
+        th$Sigma=th$Sigma[,,ec,drop=FALSE];
     }
 return(list(th=th,cstr=cstr))
 }
@@ -472,6 +474,7 @@ if(!is.null(in_theta)) {
             Aw[,,k]=U%*%sqrt(diag(Lambda,ncol=length(Lambda),nrow=length(Lambda))-sigma2k*diag(Lw));}
         theta$A=abind(theta$A,Aw,along=2); #%DxLxK
         tmp = ExpectationZ(tapp,yapp,theta,verb);
+
         r =tmp$r ;
         ec=tmp$ec;
 		tmp = remove_empty_clusters(theta,cstr,ec);
