@@ -6,6 +6,7 @@ source("run_sim_fun.R")
 # eval(parse(text=args[[3]])) # save_prefix
 cvID = 1; K = 5
 # cvID = 3; K = 10
+cvID = 1; K = 15
 data_source = "OJ"
 save_prefix = "."
 

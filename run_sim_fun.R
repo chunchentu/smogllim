@@ -1,7 +1,7 @@
 library(R.matlab)
 library(smogllim)
 library(mclust)
-
+# system("R CMD Rd2pdf . --title=Package yourpackagename --output=./manual.pdf --force --no-clean --internals")
 run_sim_fun = function(cvID, K, M, Lw, minSize, dropTh,
                       data_source="OJ", save_prefix="."){
 
