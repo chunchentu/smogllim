@@ -18,16 +18,16 @@ flag_retrain = 1;
 if flag_retrain
     fprintf(1, 'Re train the model\n');
     
-    verb = 0;
+    verb = 1;
 
-    rng(5566)
+    rng(1234)
     N = size(y, 2);
     idx = kmeans([t;y]', K);
     in_r = full(sparse(1:N,idx,1,N,K,N));
-    cstr.Sigma = 'i';
+    cstr.Sigma = 'i*';
 
 
-    [th, r, ll] = gllim(t, y, K,'Lw',Lw,'cstr',cstr,'maxiter',100,'verb', verb, 'in_r', in_r);
+    [th, r, ll] = gllim(t, y, K,'Lw',Lw,'cstr',cstr,'maxiter',100,'verb', verb);
     save(sprintf('face_K%d_Lw%d.mat', K, Lw), '-v7.3')
 else
     fprintf(1, 'Load from the pre-trained model\n');
@@ -44,8 +44,9 @@ for target_cluster = 1:K
     title(sprintf('Cluster %d', target_cluster))
 end
 
-%% cluster 3
-target_cluster = 13;
+% 2 5 6
+%%
+target_cluster = 2;
 cluster_member = find(cluster_assignment == target_cluster);
 figure
 plotmatrix(t(:, cluster_member)')

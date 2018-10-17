@@ -85,4 +85,5 @@ idx1 = train_index[idx$idx1]
 idx2 = train_index[idx$idx2]
 
 temp_d = data.frame(train_y[, idx1])
+matplot(temp_d)
 
