@@ -20,7 +20,7 @@ gllim = function(tapp,yapp,in_K,in_r=NULL,maxiter=100,Lw=0,cstr=NULL,verb=0,in_t
 # %   - cstr$cw             % fixed value (LwxK) or ''=fixed to 0
 # %   - cstr$Gammat         % fixed value (LtxLtxK) or ''=uncons.
 # %                         | or {'','d','i'}{'','*','v'} [1]
-# %   - cstr$Gammaw         % fixed value (LwxLwxK) or ''=fixed to I
+# %   - cstr$Gammaw         % fixed value (LwxLwxK) or ''=fixed to IQR
 # %   - cstr$pi             % fixed value (1xK) or ''=uncons. or '*'=equal
 # %   - cstr$A             % fixed value (DxL) or ''=uncons.
 # %   - cstr$b             % fixed value (DxK) or ''=uncons.
@@ -434,10 +434,11 @@ if(!is.null(in_theta)) {
 	Sw = tmp$Sw
     if(verb>=1) print("");
     } else {if(is.null(in_r)){
+
 			 r = emgm(rbind(tapp,yapp), in_K, 1000, verb=verb)$R;
     } else {r=in_r$R;}
 
-    if(Lw==0) {Sw=NULL; muw=NULL;} else {
+    if(Lw==0) {Sw=NULL; muw=NULL; K=in_K} else {
         # % Start by running an M-step without hidden variables (partial
         # % theta), deduce Awk by local weighted PCA on residuals (complete
         # % theta), deduce r, muw and Sw from E-steps on complete theta.
@@ -531,7 +532,6 @@ if(verb>=1) print(paste('Converged in ',iter,' iterations',sep=""));
 theta$r = r
 theta$LLf=LLf
 theta$LL = LL[1:iter]
-
 if (cstr$Sigma == "i") {nbparSigma = 1}
 if (cstr$Sigma == "d") {nbparSigma = D}
 if (cstr$Sigma == "") {nbparSigma = D*(D+1)/2}

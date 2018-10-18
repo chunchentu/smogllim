@@ -6,6 +6,8 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
     L = Lt + Lw
     D = nrow(yapp)
     N = ncol(yapp)
+    M = in_M
+    K = in_K
     #initialize cstr
     if(! "ct" %in% names(cstr)) cstr$ct = NULL
     if(! "cw" %in% names(cstr)) cstr$cw = NULL
@@ -17,7 +19,7 @@ smogllim = function(tapp, yapp, in_K, in_M, in_r=NULL, maxiter=100, Lw=0, cstr=N
     if(! "Sigma" %in% names(cstr)) cstr$Sigma = "*"
 
     if(is.null(in_r)){
-        gllim_result = gllim(tapp, yapp, K, in_r=NULL, cstr=cstr)
+        gllim_result = gllim(tapp, yapp, in_K, in_r=NULL, cstr=cstr)
         gllim_r = round(gllim_result$r)
 
     cluster_assign = apply(gllim_r, 1, which.max)

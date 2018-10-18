@@ -1,6 +1,6 @@
 #!/bin/bash
 ##This names the job for the queueing system
-#PBS -N OJ_smogllim
+#PBS -N face_bootstrap
 ##This denotes the queue that the job should be run in.
 #PBS -q flux
 
@@ -18,7 +18,7 @@
 #PBS -l procs=1,pmem=8GB
 
 ## job array
-#PBS -t 1-10%10
+#PBS -t 1-50%25
 
 ##This is the run time (hh:mm:ss) that your job will be allocated.  
 ##It will be killed if it exceeds its walltime.
@@ -55,16 +55,15 @@
 ##   was submitted.
 ##
 cd $PBS_O_WORKDIR
-#DATE="2018_1016_1610"
-save_dir="\"/scratch/stats_flux/timtu/smogllim/\""
+
+save_dir="\"/scratch/stats_flux/timtu/smogllim/bootstrap\""
 mkdir -p ${save_dir}
 
-mkdir -p smogllim_OJ_out
+mkdir -p bootstrap_face
 cvID=${PBS_ARRAYID}
-data_source="\"OJ\""
-RoutName="smogllim_OJ_out/cv${cvID}.out"
+RoutName="bootstrap_face/cv${cvID}.out"
 
 
-R CMD BATCH "--no-save --no-restore --args cvID=$cvID data_source=${data_source} save_prefix=${save_dir}" run_sim_OJ_wrapper.R $RoutName
+R CMD BATCH "--no-save --no-restore --args cvID=$cvID save_prefix=${save_dir}" bootstrap_NN_wrapper.R $RoutName
 
 
